@@ -3,8 +3,7 @@ project(urg_node)
 
 find_package(catkin REQUIRED COMPONENTS
   diagnostic_updater dynamic_reconfigure laser_proc message_generation
-  nodelet rosconsole roscpp sensor_msgs std_msgs std_srvs tf urg_c
-)
+  nodelet rosconsole roscpp sensor_msgs std_msgs std_srvs tf urg_c am_utils)
 set_directory_properties(PROPERTIES COMPILE_OPTIONS "-std=c++11")
 
 # Dynamic reconfigure support
@@ -22,7 +21,7 @@ catkin_package(
   INCLUDE_DIRS include
   LIBRARIES urg_c_wrapper urg_node_driver
   CATKIN_DEPENDS dynamic_reconfigure laser_proc message_runtime nodelet rosconsole
-  roscpp sensor_msgs std_msgs std_srvs urg_c
+  roscpp sensor_msgs std_msgs std_srvs urg_c am_utils
   DEPENDS
 )
 

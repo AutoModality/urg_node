@@ -46,6 +46,10 @@
 
 #include "urg_node/urg_c_wrapper.h"
 
+#include <am_utils/latency_wrapper.h>
+#include <am_utils/Latency.h>
+#include <am_utils/Latency_LaserScan.h>
+
 namespace urg_node
 {
 class UrgNode
@@ -127,10 +131,13 @@ private:
   volatile bool service_yield_;
 
   ros::Publisher laser_pub_;
+  ros::Publisher laser_latency_pub_;
   laser_proc::LaserPublisher echoes_pub_;
   ros::Publisher status_pub_;
 
   ros::ServiceServer status_service_;
+
+  am::LatencyWrapper lw_;
 };
 
 }  // namespace urg_node

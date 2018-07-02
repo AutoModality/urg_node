@@ -82,14 +82,18 @@ void UrgNode::initSetup()
   pnh_.param<double>("diagnostics_window_time", diagnostics_window_time_, 5.0);
   pnh_.param<bool>("get_detailed_status", detailed_status_, false);
 
-  // Set up publishers and diagnostics updaters, we only need one
+  lw_.setNodeHandle(&pnh_);
+  lw_.setNodeId(am_utils::Latency::LOCATOR);
+
+   // Set up publishers and diagnostics updaters, we only need one
   if (publish_multiecho_)
   {
     echoes_pub_ = laser_proc::LaserTransport::advertiseLaser(nh_, 20);
   }
   else
   {
-    laser_pub_ = nh_.advertise<sensor_msgs::LaserScan>("scan", 20);
+	laser_pub_ = nh_.advertise<sensor_msgs::LaserScan>("scan", 20);
+	lw_.advertise<am_utils::Latency_LaserScan>("scan_latency");
   }
 
   status_service_ = nh_.advertiseService("update_laser_status", &UrgNode::statusCallback, this);
@@ -529,6 +533,8 @@ void UrgNode::scanThread()
           if (urg_->grabScan(msg))
           {
             laser_pub_.publish(msg);
+            sensor_msgs::LaserScan msg2 = (sensor_msgs::LaserScan)*msg;
+            lw_.publish<am_utils::Latency_LaserScan, sensor_msgs::LaserScan>(msg2);
             laser_freq_->tick();
           }
           else
