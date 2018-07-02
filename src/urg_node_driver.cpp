@@ -534,6 +534,7 @@ void UrgNode::scanThread()
           {
             laser_pub_.publish(msg);
             sensor_msgs::LaserScan msg2 = (sensor_msgs::LaserScan)*msg;
+            lw_.setLastMessageStamp(msg->header.stamp);
             lw_.publish<am_utils::Latency_LaserScan, sensor_msgs::LaserScan>(msg2);
             laser_freq_->tick();
           }
