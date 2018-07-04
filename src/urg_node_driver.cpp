@@ -37,6 +37,9 @@
 #include <string>
 #include <diagnostic_msgs/DiagnosticStatus.h>
 #include <urg_node/Status.h>
+#include <am_utils/topics.h>
+
+using namespace am;
 
 namespace urg_node
 {
@@ -92,8 +95,8 @@ void UrgNode::initSetup()
   }
   else
   {
-	laser_pub_ = nh_.advertise<sensor_msgs::LaserScan>("scan", 20);
-	lw_.advertise<am_utils::Latency_LaserScan>("scan_latency");
+	laser_pub_ = nh_.advertise<sensor_msgs::LaserScan>(am_topics::LIDAR_SCAN, 20);
+	lw_.advertise<am_utils::Latency_LaserScan>(am_topics::LIDAR_SCAN);
   }
 
   status_service_ = nh_.advertiseService("update_laser_status", &UrgNode::statusCallback, this);

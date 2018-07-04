@@ -47,8 +47,6 @@
 #include "urg_node/urg_c_wrapper.h"
 
 #include <am_utils/latency_wrapper.h>
-#include <am_utils/Latency.h>
-#include <am_utils/Latency_LaserScan.h>
 
 namespace urg_node
 {
