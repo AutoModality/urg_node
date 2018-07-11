@@ -86,7 +86,7 @@ void UrgNode::initSetup()
   pnh_.param<bool>("get_detailed_status", detailed_status_, false);
 
   lw_.setNodeHandle(&pnh_);
-  lw_.setNodeId(am_utils::Latency::LOCATOR);
+  lw_.setNodeId(am_utils::Latency::URG_NODE);
 
    // Set up publishers and diagnostics updaters, we only need one
   if (publish_multiecho_)
