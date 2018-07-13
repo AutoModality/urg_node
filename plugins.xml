@@ -1,0 +1,8 @@
+<library path="lib/liburg_nodelet">
+  <class name="urg_node/UrgNode"
+         type="urg_node::UrgNode"
+         base_class_type="nodelet::Nodelet">
+    <description>urg driver nodelet</description>
+  </class>
+</library>
+

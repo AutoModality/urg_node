@@ -47,19 +47,28 @@ namespace urg_node
 // Useful typedefs
 typedef diagnostic_updater::FrequencyStatusParam FrequencyStatusParam;
 
-UrgNode::UrgNode(ros::NodeHandle nh, ros::NodeHandle private_nh) :
-  nh_(nh),
-  pnh_(private_nh)
+//UrgNode::UrgNode(ros::NodeHandle nh, ros::NodeHandle private_nh) :
+//  nh_(nh),
+//  pnh_(private_nh)
+//{
+//  initSetup();
+//}
+//
+//UrgNode::UrgNode():
+//  nh_(),
+//  pnh_("~")
+//{
+//  initSetup();
+//}
+
+void UrgNode::onInit()
 {
-  initSetup();
+	nh_ = getNodeHandle();
+	pnh_ = getPrivateNodeHandle();
+	initSetup();
 }
 
-UrgNode::UrgNode():
-  nh_(),
-  pnh_("~")
-{
-  initSetup();
-}
+
 
 void UrgNode::initSetup()
 {
@@ -106,20 +115,20 @@ void UrgNode::initSetup()
   diagnostic_updater_->add("Hardware Status", this, &UrgNode::populateDiagnosticsStatus);
 }
 
-UrgNode::~UrgNode()
-{
-  if (diagnostics_thread_.joinable())
-  {
-    // Clean up our diagnostics thread.
-    close_diagnostics_ = true;
-    diagnostics_thread_.join();
-  }
-  if (scan_thread_.joinable())
-  {
-    close_scan_ = true;
-    scan_thread_.join();
-  }
-}
+//UrgNode::~UrgNode()
+//{
+//  if (diagnostics_thread_.joinable())
+//  {
+//    // Clean up our diagnostics thread.
+//    close_diagnostics_ = true;
+//    diagnostics_thread_.join();
+//  }
+//  if (scan_thread_.joinable())
+//  {
+//    close_scan_ = true;
+//    scan_thread_.join();
+//  }
+//}
 
 bool UrgNode::updateStatus()
 {
@@ -608,3 +617,7 @@ void UrgNode::run()
   scan_thread_ = boost::thread(boost::bind(&UrgNode::scanThread, this));
 }
 }  // namespace urg_node
+
+#include <pluginlib/class_list_macros.h>
+PLUGINLIB_EXPORT_CLASS(urg_node::UrgNode, nodelet::Nodelet);
+

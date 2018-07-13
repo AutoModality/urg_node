@@ -37,6 +37,7 @@
 
 #include <string>
 #include <ros/ros.h>
+#include <nodelet/nodelet.h>
 #include <dynamic_reconfigure/server.h>
 #include <laser_proc/LaserTransport.h>
 #include <diagnostic_updater/diagnostic_updater.h>
@@ -50,13 +51,14 @@
 
 namespace urg_node
 {
-class UrgNode
+class UrgNode : public nodelet::Nodelet
 {
 public:
-  UrgNode();
-  UrgNode(ros::NodeHandle nh, ros::NodeHandle private_nh);
-  ~UrgNode();
+//  UrgNode();
+//  UrgNode(ros::NodeHandle nh, ros::NodeHandle private_nh);
+//  ~UrgNode();
 
+  void onInit();
   /**
    * @brief Start's the nodes threads to run the lidar.
    */
