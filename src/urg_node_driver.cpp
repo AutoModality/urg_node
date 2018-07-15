@@ -105,8 +105,8 @@ void UrgNode::initSetup()
   }
   else
   {
-	laser_pub_ = nh_.advertise<sensor_msgs::LaserScan>(am_topics::LIDAR_SCAN, 20);
-	lw_.advertise<am_utils::Latency_LaserScan>(am_topics::LIDAR_SCAN);
+	laser_pub_ = nh_.advertise<sensor_msgs::LaserScan>(am_topics::SENSOR_LIDAR_SCAN, 20);
+	lw_.advertise<am_utils::Latency_LaserScan>(am_topics::SENSOR_LIDAR_SCAN, 20);
   }
 
   status_service_ = nh_.advertiseService("update_laser_status", &UrgNode::statusCallback, this);
@@ -546,9 +546,8 @@ void UrgNode::scanThread()
           if (urg_->grabScan(msg))
           {
             laser_pub_.publish(msg);
-            sensor_msgs::LaserScan msg2 = (sensor_msgs::LaserScan)*msg;
             lw_.setLastMessageStamp(msg->header.stamp);
-            lw_.publish<am_utils::Latency_LaserScan, sensor_msgs::LaserScan>(msg2);
+            lw_.publishPtr<am_utils::Latency_LaserScanPtr, sensor_msgs::LaserScan>(*msg);
             laser_freq_->tick();
           }
           else
