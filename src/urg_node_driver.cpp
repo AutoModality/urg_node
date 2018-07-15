@@ -66,6 +66,7 @@ void UrgNode::onInit()
 	nh_ = getNodeHandle();
 	pnh_ = getPrivateNodeHandle();
 	initSetup();
+	run();
 }
 
 
