@@ -39,6 +39,8 @@
 #include <urg_node/Status.h>
 #include <am_utils/topics.h>
 
+#define NODE_NAME 	"urg_nodelet"
+
 using namespace am;
 
 namespace urg_node
@@ -114,6 +116,8 @@ void UrgNode::initSetup()
 
   diagnostic_updater_.reset(new diagnostic_updater::Updater);
   diagnostic_updater_->add("Hardware Status", this, &UrgNode::populateDiagnosticsStatus);
+
+  ROS_INFO_STREAM(NODE_NAME << "initSetup complete");
 }
 
 //UrgNode::~UrgNode()
@@ -547,7 +551,7 @@ void UrgNode::scanThread()
           {
             laser_pub_.publish(msg);
             lw_.setLastMessageStamp(msg->header.stamp);
-            lw_.publishPtr<am_utils::Latency_LaserScanPtr, sensor_msgs::LaserScan>(*msg);
+            lw_.publishPtr<am_utils::Latency_LaserScanPtr, am_utils::Latency_LaserScan, sensor_msgs::LaserScan>(*msg);
             laser_freq_->tick();
           }
           else
