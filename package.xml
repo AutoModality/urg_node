@@ -30,6 +30,7 @@
   <depend>tf</depend>
   <depend>urg_c</depend>
   <depend>am_utils</depend>
+  <depend>latency_testing</depend>
   
   <exec_depend>message_runtime</exec_depend>
 

@@ -54,8 +54,11 @@ namespace urg_node
 class UrgNode : public nodelet::Nodelet
 {
 public:
-//  UrgNode();
-//  UrgNode(ros::NodeHandle nh, ros::NodeHandle private_nh);
+  UrgNode() {
+    nh_ = &getNodeHandle();
+    pnh_ = &getPrivateNodeHandle();
+  }
+  UrgNode(ros::NodeHandle *nh, ros::NodeHandle *private_nh);
 //  ~UrgNode();
 
   void onInit();
@@ -83,8 +86,8 @@ private:
 
   bool statusCallback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
-  ros::NodeHandle nh_;
-  ros::NodeHandle pnh_;
+  ros::NodeHandle *nh_;
+  ros::NodeHandle *pnh_;
 
   boost::thread diagnostics_thread_;
   boost::thread scan_thread_;
@@ -137,7 +140,6 @@ private:
 
   ros::ServiceServer status_service_;
 
-  am::LatencyWrapper lw_;
 };
 
 }  // namespace urg_node

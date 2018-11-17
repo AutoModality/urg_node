@@ -32,13 +32,16 @@
  */
 
 #include "urg_node/urg_node_driver.h"
+#include <latency_testing/AMNodeHandle.hpp>
+#include <ros/ros.h>
 
 int main(int argc, char **argv)
 {
   // Initialize node and nodehandles
   ros::init(argc, argv, "urg_node");
-
-  urg_node::UrgNode node;
+  ros::NodeHandle nh;
+  ros::NodeHandle pnh("~");
+  urg_node::UrgNode node( &nh, &pnh );
   node.run();
 
   ros::spin();

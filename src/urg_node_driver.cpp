@@ -38,6 +38,7 @@
 #include <diagnostic_msgs/DiagnosticStatus.h>
 #include <urg_node/Status.h>
 #include <am_utils/topics.h>
+#include <latency_testing/AMNodeHandle.hpp>
 
 #define NODE_NAME 	"urg_nodelet"
 
@@ -49,12 +50,12 @@ namespace urg_node
 // Useful typedefs
 typedef diagnostic_updater::FrequencyStatusParam FrequencyStatusParam;
 
-//UrgNode::UrgNode(ros::NodeHandle nh, ros::NodeHandle private_nh) :
-//  nh_(nh),
-//  pnh_(private_nh)
-//{
+UrgNode::UrgNode(ros::NodeHandle *nh, ros::NodeHandle *private_nh) :
+ nh_(nh),
+ pnh_(private_nh)
+{
 //  initSetup();
-//}
+}
 //
 //UrgNode::UrgNode():
 //  nh_(),
@@ -65,8 +66,8 @@ typedef diagnostic_updater::FrequencyStatusParam FrequencyStatusParam;
 
 void UrgNode::onInit()
 {
-	nh_ = getNodeHandle();
-	pnh_ = getPrivateNodeHandle();
+ 	// nh_ = getNodeHandle();
+	// pnh_ = getPrivateNodeHandle();
 	initSetup();
 	run();
 }
@@ -84,35 +85,31 @@ void UrgNode::initSetup()
   // Initialize node and nodehandles
 
   // Get parameters so we can change these later.
-  pnh_.param<std::string>("ip_address", ip_address_, "");
-  pnh_.param<int>("ip_port", ip_port_, 10940);
-  pnh_.param<std::string>("serial_port", serial_port_, "/dev/ttyACM0");
-  pnh_.param<int>("serial_baud", serial_baud_, 115200);
-  pnh_.param<bool>("calibrate_time", calibrate_time_, false);
-  pnh_.param<bool>("synchronize_time", synchronize_time_, false);
-  pnh_.param<bool>("publish_intensity", publish_intensity_, true);
-  pnh_.param<bool>("publish_multiecho", publish_multiecho_, false);
-  pnh_.param<int>("error_limit", error_limit_, 4);
-  pnh_.param<double>("diagnostics_tolerance", diagnostics_tolerance_, 0.05);
-  pnh_.param<double>("diagnostics_window_time", diagnostics_window_time_, 5.0);
-  pnh_.param<bool>("get_detailed_status", detailed_status_, false);
-
-  lw_.setNodeHandle(&pnh_);
-  lw_.setNodeId(am_utils::Latency::URG_NODE);
+  pnh_->param<std::string>("ip_address", ip_address_, "");
+  pnh_->param<int>("ip_port", ip_port_, 10940);
+  pnh_->param<std::string>("serial_port", serial_port_, "/dev/ttyACM0");
+  pnh_->param<int>("serial_baud", serial_baud_, 115200);
+  pnh_->param<bool>("calibrate_time", calibrate_time_, false);
+  pnh_->param<bool>("synchronize_time", synchronize_time_, false);
+  pnh_->param<bool>("publish_intensity", publish_intensity_, true);
+  pnh_->param<bool>("publish_multiecho", publish_multiecho_, false);
+  pnh_->param<int>("error_limit", error_limit_, 4);
+  pnh_->param<double>("diagnostics_tolerance", diagnostics_tolerance_, 0.05);
+  pnh_->param<double>("diagnostics_window_time", diagnostics_window_time_, 5.0);
+  pnh_->param<bool>("get_detailed_status", detailed_status_, false);
 
    // Set up publishers and diagnostics updaters, we only need one
   if (publish_multiecho_)
   {
-    echoes_pub_ = laser_proc::LaserTransport::advertiseLaser(nh_, 20);
+    echoes_pub_ = laser_proc::LaserTransport::advertiseLaser(*nh_, 20);
   }
   else
   {
-	laser_pub_ = nh_.advertise<sensor_msgs::LaserScan>(am_topics::SENSOR_LIDAR_SCAN, 20);
-	lw_.advertise<am_utils::Latency_LaserScan>(am_topics::SENSOR_LIDAR_SCAN, 20);
+	laser_pub_ = nh_->advertise<sensor_msgs::LaserScan>(am_topics::SENSOR_LIDAR_SCAN, 20);
   }
 
-  status_service_ = nh_.advertiseService("update_laser_status", &UrgNode::statusCallback, this);
-  status_pub_ = nh_.advertise<urg_node::Status>("laser_status", 1, true);
+  status_service_ = nh_->advertiseService("update_laser_status", &UrgNode::statusCallback, this);
+  status_pub_ = nh_->advertise<urg_node::Status>("laser_status", 1, true);
 
   diagnostic_updater_.reset(new diagnostic_updater::Updater);
   diagnostic_updater_->add("Hardware Status", this, &UrgNode::populateDiagnosticsStatus);
@@ -484,7 +481,7 @@ void UrgNode::scanThread()
     else
     {
       // Set up dynamic reconfigure
-      srv_.reset(new dynamic_reconfigure::Server<urg_node::URGConfig>(pnh_));
+      srv_.reset(new dynamic_reconfigure::Server<urg_node::URGConfig>(*pnh_));
       // Configure limits (Must do this after creating the urgwidget)
       update_reconfigure_limits();
       srv_->setCallback(boost::bind(&UrgNode::reconfigure_callback, this, _1, _2));
@@ -550,8 +547,6 @@ void UrgNode::scanThread()
           if (urg_->grabScan(msg))
           {
             laser_pub_.publish(msg);
-            lw_.setLastMessageStamp(msg->header.stamp);
-            lw_.publishPtr<am_utils::Latency_LaserScanPtr, am_utils::Latency_LaserScan, sensor_msgs::LaserScan>(*msg);
             laser_freq_->tick();
           }
           else
