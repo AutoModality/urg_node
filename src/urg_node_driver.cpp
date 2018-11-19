@@ -50,11 +50,11 @@ namespace urg_node
 // Useful typedefs
 typedef diagnostic_updater::FrequencyStatusParam FrequencyStatusParam;
 
-UrgNode::UrgNode(ros::NodeHandle *nh, ros::NodeHandle *private_nh) :
+UrgNode::UrgNode(am::NodeHandle *nh, am::NodeHandle *private_nh) :
  nh_(nh),
  pnh_(private_nh)
 {
-//  initSetup();
+  initSetup();
 }
 //
 //UrgNode::UrgNode():
@@ -145,7 +145,10 @@ bool UrgNode::updateStatus()
     if (detailed_status_)
     {
       URGStatus status;
-      if (urg_->getAR00Status(status))
+      // if (urg_->getAR00Status(status))
+      if ( am::MeasureDelayStart((am::NodeHandle*)this->nh_,urg_->getAR00Status(status),DELAY_TOPIC_BASE + ros::this_node::getName() + "/status_pub"))
+      // if ( am::MeasureDelayStart(nh_,urg_->getAR00Status(status),DELAY_TOPIC_BASE + ros::this_node::getName() + "/status_pub" ) )
+      // if ( nh_->MesaureDelay(DELAY_TOPIC_BASE + ros::this_node::getName() + "/status_pub",urg_->getAR00Status(status)) )
       {
         urg_node::Status msg;
         msg.operating_mode = status.operating_mode;
@@ -169,7 +172,9 @@ bool UrgNode::updateStatus()
         }
 
         // Publish the status on the latched topic for inspection.
-        status_pub_.publish(msg);
+        // status_pub_.publish(msg, true );
+        //status_pub_.publish(msg);
+        status_pub_.publish( msg, true, DELAY_TOPIC_BASE + ros::this_node::getName() + "/status_pub" );
         result = true;
       }
       else
@@ -177,7 +182,8 @@ bool UrgNode::updateStatus()
         ROS_WARN("Failed to retrieve status");
 
         urg_node::Status msg;
-        status_pub_.publish(msg);
+        status_pub_.publish( msg, true, DELAY_TOPIC_BASE + ros::this_node::getName() + "/status_pub" );
+        // status_pub_.publish(msg);
       }
     }
   }
@@ -529,9 +535,13 @@ void UrgNode::scanThread()
         if (publish_multiecho_)
         {
           const sensor_msgs::MultiEchoLaserScanPtr msg(new sensor_msgs::MultiEchoLaserScan());
-          if (urg_->grabScan(msg))
+          
+          if ( am::MeasureDelayStart(this->nh_,urg_->grabScan(msg),DELAY_TOPIC_BASE + ros::this_node::getName() + "/echoes_pub"))
+          // if (  urg_->grabScan(msg)  )
           {
             echoes_pub_.publish(msg);
+            am::MeasureDelayStop(nh_, true , DELAY_TOPIC_BASE + ros::this_node::getName() + "/echoes_pub" );
+            // echoes_pub_.publish(msg, true, DELAY_TOPIC_BASE + ros::this_node::getName() + "/echoes_pub" );
             echoes_freq_->tick();
           }
           else
@@ -544,9 +554,9 @@ void UrgNode::scanThread()
         else
         {
           const sensor_msgs::LaserScanPtr msg(new sensor_msgs::LaserScan());
-          if (urg_->grabScan(msg))
+          if (am::MeasureDelayStart(this->nh_,urg_->grabScan(msg),DELAY_TOPIC_BASE + ros::this_node::getName() + "/laser_pub"))
           {
-            laser_pub_.publish(msg);
+            laser_pub_.publish(msg, true ,DELAY_TOPIC_BASE + ros::this_node::getName() + "/laser_pub" );
             laser_freq_->tick();
           }
           else

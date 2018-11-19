@@ -44,7 +44,7 @@
 #include <diagnostic_updater/publisher.h>
 #include <urg_node/URGConfig.h>
 #include <std_srvs/Trigger.h>
-
+#include "latency_testing/AMNodeHandle.hpp"
 #include "urg_node/urg_c_wrapper.h"
 
 #include <am_utils/latency_wrapper.h>
@@ -55,10 +55,10 @@ class UrgNode : public nodelet::Nodelet
 {
 public:
   UrgNode() {
-    nh_ = &getNodeHandle();
-    pnh_ = &getPrivateNodeHandle();
+    nh_ = new am::NodeHandle;
+    pnh_ = new am::NodeHandle("~");
   }
-  UrgNode(ros::NodeHandle *nh, ros::NodeHandle *private_nh);
+  UrgNode(am::NodeHandle *nh, am::NodeHandle *private_nh);
 //  ~UrgNode();
 
   void onInit();
@@ -86,8 +86,9 @@ private:
 
   bool statusCallback(std_srvs::Trigger::Request &req, std_srvs::Trigger::Response &res);
 
-  ros::NodeHandle *nh_;
-  ros::NodeHandle *pnh_;
+  // Baseclass pointers
+  am::NodeHandle *nh_;
+  am::NodeHandle *pnh_;
 
   boost::thread diagnostics_thread_;
   boost::thread scan_thread_;
@@ -133,10 +134,11 @@ private:
 
   volatile bool service_yield_;
 
-  ros::Publisher laser_pub_;
+  am::Publisher laser_pub_;
   ros::Publisher laser_latency_pub_;
   laser_proc::LaserPublisher echoes_pub_;
-  ros::Publisher status_pub_;
+  /* ros::Publisher status_pub_; */
+  am::Publisher status_pub_;
 
   ros::ServiceServer status_service_;
 
